@@ -1,0 +1,110 @@
+.dashboard .quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn svg {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.action-btn span {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.appointment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #3498db;
+}
+
+.apt-info h4 {
+  margin-bottom: 5px;
+  color: #2c3e50;
+}
+
+.apt-info p {
+  margin: 3px 0;
+  color: #7f8c8d;
+  font-size: 0.95rem;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.notification-item {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #f39c12;
+}
+
+.notif-icon {
+  font-size: 1.5rem;
+  color: #f39c12;
+}
+
+.notif-content h4 {
+  margin-bottom: 5px;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.notif-content p {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.notif-time {
+  font-size: 0.8rem;
+  color: #95a5a6;
+}
+
+@media (max-width: 768px) {
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .appointment-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

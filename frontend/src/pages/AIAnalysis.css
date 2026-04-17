@@ -1,0 +1,89 @@
+.ai-analysis .symptoms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.symptom-chip {
+  padding: 12px 20px;
+  background: #ecf0f1;
+  border: 2px solid #bdc3c7;
+  border-radius: 25px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.symptom-chip:hover {
+  background: #d5dbdb;
+}
+
+.symptom-chip.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.severity-badge {
+  display: inline-block;
+  padding: 10px 20px;
+  color: white;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.conditions-list,
+.recommendations-list,
+.precautions-list {
+  list-style: none;
+  padding: 0;
+}
+
+.conditions-list li,
+.recommendations-list li,
+.precautions-list li {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  border-left: 4px solid #3498db;
+  border-radius: 5px;
+}
+
+.recommendations-list li {
+  border-left-color: #2ecc71;
+}
+
+.precautions-list li {
+  border-left-color: #f39c12;
+}
+
+.medication-item {
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 4px solid #9b59b6;
+}
+
+.medication-item h4 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.medication-item p {
+  margin: 5px 0;
+  color: #7f8c8d;
+}
+
+@media (max-width: 768px) {
+  .ai-analysis .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .symptoms-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
