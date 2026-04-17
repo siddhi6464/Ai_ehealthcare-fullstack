@@ -1,8 +1,8 @@
 # 🏥 eHealthCare - AI-Assisted Online Appointment & Wellness Notification System
 
-**Full Stack MERN Application with Rule-Based AI**
+**Full Stack MERN Application powered by Google Gemini AI (LLM)**
 
-A comprehensive healthcare platform that enables patients to book appointments, receive AI-powered health recommendations, and get automated wellness reminders.
+A comprehensive healthcare platform that enables patients to book appointments, receive **LLM-powered health analysis** via Google Gemini, and get automated wellness reminders. The AI engine uses natural language understanding to evaluate symptoms, suggest diagnoses, generate prescriptions, and recommend specialists — going far beyond traditional rule-based systems.
 
 ---
 
@@ -14,18 +14,19 @@ A comprehensive healthcare platform that enables patients to book appointments, 
 - [Running the Application](#running-the-application)
 - [Project Structure](#project-structure)
 - [API Documentation](#api-documentation)
-- [Screenshots](#screenshots)
+- [AI Engine](#ai-engine)
 - [Team](#team)
 
 ---
 
 ## ✨ Features
 
-### 🤖 AI-Powered Features
-- **Intelligent Symptom Analyzer**: Rule-based AI engine that analyzes symptoms
-- **Health Recommendations**: Personalized suggestions based on symptoms
-- **Prescription Generation**: AI-generated medication and lifestyle recommendations
-- **Specialist Suggestion**: Recommends appropriate doctor specialization
+### 🤖 Gemini LLM-Powered AI Features
+- **Intelligent Symptom Analyzer**: Powered by Google Gemini 2.5 Flash — analyzes symptoms using generative AI and NLP, not static rules
+- **Context-Aware Diagnosis**: Considers symptoms, vitals, allergies, and medical history together for holistic analysis
+- **Smart Prescription Generation**: AI-generated medication recommendations with allergy checks and banned-drug filtering
+- **Specialist Suggestion**: Recommends the most appropriate doctor specialization based on the full clinical picture
+- **Graceful Fallback**: Automatic retry with exponential backoff; falls back to a built-in rule-based engine if the LLM is unavailable
 
 ### 📅 Appointment Management
 - Book appointments with doctors
@@ -40,6 +41,12 @@ A comprehensive healthcare platform that enables patients to book appointments, 
 - **Blood Sugar Testing**: Diabetes management reminders
 - **Appointment Reminders**: 24-hour advance notifications
 - **Email Notifications**: Automated email alerts
+
+### 👨‍⚕️ Doctor Profile Management
+- Rich doctor profiles with biography and achievements
+- Custom avatar support
+- Editable profile for doctors
+- Patient-facing doctor cards
 
 ### 👥 User Management
 - Patient and Doctor roles
@@ -69,9 +76,9 @@ A comprehensive healthcare platform that enables patients to book appointments, 
 - **React Icons** - Icon library
 
 ### AI Engine
-- **Rule-Based System** - Custom symptom analyzer
-- **Decision Trees** - Medical knowledge base
-- **Pattern Matching** - Symptom-condition mapping
+- **Google Gemini 2.5 Flash** - Large Language Model for symptom analysis and prescription generation
+- **@google/generative-ai** - Official Google Generative AI SDK
+- **Rule-Based Fallback** - Built-in medical knowledge base used when LLM is unavailable
 
 ---
 
@@ -83,6 +90,7 @@ Before you begin, ensure you have the following installed:
 - **MongoDB** (v4.4 or higher) - [Download](https://www.mongodb.com/try/download/community)
 - **npm** or **yarn** - Comes with Node.js
 - **Git** - [Download](https://git-scm.com/)
+- **Google Gemini API Key** - [Get one here](https://aistudio.google.com/app/apikey)
 
 ### Check Installations
 ```bash
@@ -95,10 +103,10 @@ mongo --version  # Should show 4.4+
 
 ## 🚀 Installation
 
-### Step 1: Clone/Extract the Project
+### Step 1: Clone the Repository
 ```bash
-# If you have the folder, navigate to it
-cd ehealthcare
+git clone https://github.com/siddhi6464/Ai_ehealthcare-fullstack.git
+cd Ai_ehealthcare-fullstack
 ```
 
 ### Step 2: Install Backend Dependencies
@@ -107,16 +115,10 @@ cd backend
 npm install
 ```
 
-**Dependencies being installed:**
-- express
-- mongoose
-- bcryptjs
-- jsonwebtoken
-- dotenv
-- cors
-- node-cron
-- nodemailer
-- validator
+**Key dependencies:**
+- express, mongoose, bcryptjs, jsonwebtoken
+- dotenv, cors, node-cron, nodemailer
+- @google/generative-ai (Gemini SDK)
 
 ### Step 3: Configure Backend Environment
 
@@ -126,7 +128,8 @@ Create `.env` file in `backend/` directory:
 PORT=5000
 NODE_ENV=development
 MONGODB_URI=mongodb://localhost:27017/ehealthcare
-JWT_SECRET=your_super_secret_jwt_key_change_in_production_2024
+JWT_SECRET=your_super_secret_jwt_key_change_in_production
+GEMINI_API_KEY=your_google_gemini_api_key
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=your-email@gmail.com
@@ -134,20 +137,13 @@ EMAIL_PASSWORD=your-gmail-app-password
 FRONTEND_URL=http://localhost:3000
 ```
 
+> ⚠️ **Important**: You must set a valid `GEMINI_API_KEY` for the AI analysis to work. Get one free at [Google AI Studio](https://aistudio.google.com/app/apikey).
+
 ### Step 4: Install Frontend Dependencies
 ```bash
 cd ../frontend
 npm install
 ```
-
-**Dependencies being installed:**
-- react
-- react-dom
-- react-router-dom
-- axios
-- react-toastify
-- react-icons
-- date-fns
 
 ### Step 5: Configure Frontend Environment
 
@@ -171,18 +167,6 @@ net start MongoDB
 **On Linux/Mac:**
 ```bash
 sudo systemctl start mongod
-# OR
-sudo service mongod start
-```
-
-**Verify MongoDB is running:**
-```bash
-# Open mongo shell
-mongosh
-# OR
-mongo
-
-# You should see: connecting to: mongodb://127.0.0.1:27017
 ```
 
 ### Step 2: Start Backend Server
@@ -200,8 +184,6 @@ You should see:
 🔔 Notification scheduler started successfully
 ```
 
-Backend will be running at: **http://localhost:5000**
-
 ### Step 3: Start Frontend
 
 Open another terminal:
@@ -217,7 +199,7 @@ Frontend will automatically open at: **http://localhost:3000**
 ## 📁 Project Structure
 
 ```
-ehealthcare/
+Ai_ehealthcare-fullstack/
 ├── backend/
 │   ├── controllers/          # Request handlers
 │   │   ├── authController.js
@@ -235,15 +217,13 @@ ehealthcare/
 │   │   ├── notificationRoutes.js
 │   │   └── userRoutes.js
 │   ├── services/            # Business logic
-│   │   ├── aiEngine.js      # ⭐ Rule-Based AI
+│   │   ├── aiEngine.js      # ⭐ Gemini LLM AI Engine
 │   │   ├── notificationScheduler.js
 │   │   └── emailService.js
 │   ├── middleware/          # Custom middleware
 │   │   └── auth.js
-│   ├── .env                 # Environment variables
 │   ├── server.js            # Entry point
-│   ├── package.json
-│   └── README.md
+│   └── package.json
 │
 ├── frontend/
 │   ├── public/
@@ -256,7 +236,10 @@ ehealthcare/
 │   │   │   ├── Login.js
 │   │   │   ├── Register.js
 │   │   │   ├── Dashboard.js
+│   │   │   ├── DoctorDashboard.js
+│   │   │   ├── DoctorProfile.js
 │   │   │   ├── BookAppointment.js
+│   │   │   ├── MyAppointments.js
 │   │   │   ├── AIAnalysis.js
 │   │   │   └── HealthReminders.js
 │   │   ├── context/         # State management
@@ -266,10 +249,9 @@ ehealthcare/
 │   │   ├── App.js           # Main component
 │   │   ├── App.css          # Global styles
 │   │   └── index.js         # Entry point
-│   ├── .env
-│   ├── package.json
-│   └── README.md
+│   └── package.json
 │
+├── .gitignore
 └── README.md                # This file
 ```
 
@@ -311,7 +293,7 @@ Content-Type: application/json
 
 ### AI Endpoints
 
-#### Analyze Symptoms
+#### Analyze Symptoms (Gemini LLM)
 ```http
 POST /api/ai/analyze
 Authorization: Bearer <token>
@@ -340,13 +322,23 @@ Content-Type: application/json
         "Rest adequately",
         "Drink plenty of fluids"
       ],
-      "precautions": [...],
+      "precautions": ["..."],
       "urgency": "Consult doctor if fever persists",
-      "suggestedSpecialist": "General Physician"
+      "suggestedSpecialist": "General Physician",
+      "riskFactors": ["..."]
     },
     "prescription": {
-      "medications": [...],
-      "lifestyle": [...],
+      "medications": [
+        {
+          "medicine": "Paracetamol",
+          "dosage": "500mg",
+          "frequency": "Every 6 hours",
+          "duration": "3-5 days",
+          "instructions": "Take after meals",
+          "requiresPrescription": false
+        }
+      ],
+      "lifestyle": ["..."],
       "followUp": "3-5 days if symptoms persist"
     }
   }
@@ -388,60 +380,43 @@ Authorization: Bearer <token>
 
 ## 🤖 AI Engine - How It Works
 
-The **Rule-Based AI Engine** (`backend/services/aiEngine.js`) is the core intelligence:
+The AI engine (`backend/services/aiEngine.js`) uses a **two-tier architecture**:
 
-### Features:
-1. **Symptom Database**: 10+ symptoms with detailed medical rules
-2. **Severity Detection**: Automatically determines urgency (low/medium/high)
-3. **Condition Mapping**: Links symptoms to possible medical conditions
-4. **Recommendations**: Provides medication and lifestyle advice
-5. **Specialist Suggestion**: Recommends appropriate doctor specialization
-6. **Risk Assessment**: Evaluates vitals and medical history
+### Tier 1: Google Gemini LLM (Primary)
+The `generateAIAnalysis()` function sends a structured medical prompt to **Google Gemini 2.5 Flash** with:
+- Patient symptoms, vitals, and full medical history
+- Allergy and banned-drug constraints baked into the prompt
+- A strict JSON schema the model must follow
+- **Retry logic** with exponential backoff (3 attempts)
 
-### Available Symptoms:
-- Fever
-- Cough
-- Headache
-- Chest pain (EMERGENCY)
-- Stomach pain
-- Dizziness
-- Body ache
-- Breathing difficulty (EMERGENCY)
-- Nausea
+The LLM evaluates the complete clinical picture using natural language understanding — producing context-aware diagnoses and personalized prescriptions that a static rule system cannot match.
 
-### Example Rule:
-```javascript
-fever: {
-  severity: 'medium',
-  possibleConditions: ['Viral Fever', 'Flu', 'Common Cold'],
-  recommendations: [
-    'Take paracetamol (500mg) for fever above 100°F',
-    'Rest adequately',
-    'Drink plenty of fluids'
-  ],
-  urgency: 'Consult doctor if fever > 102°F or persists beyond 3 days'
-}
-```
+### Tier 2: Rule-Based Fallback
+If the Gemini API is unavailable (rate limits, network issues, etc.), the system gracefully falls back to an in-built medical knowledge base with:
+- **9+ symptom rules** with severity, conditions, and recommendations
+- **Specialist mapping** (cardiac, respiratory, neurological, gastro, general)
+- **Vitals-based risk detection** (temperature, BP, blood sugar)
+- **Allergy checking** and **banned drug filtering** (e.g., Ranitidine)
 
-### Adding New Symptoms:
-Edit `backend/services/aiEngine.js` and add to `symptomRules` object.
+### Safety Features
+- 🚫 Banned medications (Ranitidine, Nimesulide) are never prescribed
+- ⚠️ Allergy cross-referencing against medical history
+- 🔴 Emergency symptom detection (chest pain, breathing difficulty)
+- 💊 Prescription-required flagging for antibiotics and controlled drugs
 
 ---
 
 ## 🔔 Notification System
 
-### Automated Schedules:
+### Automated Schedules
 - **Health Reminders**: Daily at 9:00 AM
 - **Appointment Reminders**: Daily at 6:00 PM
 
-### Types of Reminders:
+### Types of Reminders
 1. **Menstrual Cycle**: 2 days before expected date
 2. **Blood Pressure**: Based on frequency (daily/weekly/monthly)
 3. **Blood Sugar**: Based on frequency
 4. **Appointments**: 24 hours before appointment
-
-### Configure in Code:
-Edit `backend/services/notificationScheduler.js`
 
 ---
 
@@ -472,8 +447,7 @@ EMAIL_PASSWORD=generated-app-password
 ### 1. Register Test Users
 
 **Patient:**
-```bash
-# Use the registration form or API
+```
 Name: Test Patient
 Email: patient@test.com
 Password: password123
@@ -481,7 +455,7 @@ Role: Patient
 ```
 
 **Doctor:**
-```bash
+```
 Name: Dr. Smith
 Email: doctor@test.com
 Password: password123
@@ -494,7 +468,7 @@ Specialization: Cardiologist
 - Go to "AI Analysis"
 - Select symptoms: fever, headache, body_ache
 - Enter vitals
-- See AI recommendations!
+- Get Gemini-powered AI recommendations!
 
 ### 3. Book Appointment
 - Go to "Book Appointment"
@@ -517,80 +491,25 @@ Specialization: Cardiologist
 ```
 Error: MongoNetworkError
 ```
-**Solution:**
-- Make sure MongoDB is running: `sudo systemctl start mongod`
-- Check connection string in `.env`
+**Solution:** Make sure MongoDB is running: `sudo systemctl start mongod`
+
+### Gemini API Errors
+```
+Error: 503 Service Unavailable
+```
+**Solution:** The system will automatically retry 3 times with exponential backoff. If all retries fail, it falls back to the rule-based engine. Check that your `GEMINI_API_KEY` is valid.
 
 ### Port Already in Use
 ```
 Error: EADDRINUSE :::5000
 ```
-**Solution:**
-- Change PORT in backend `.env`
-- Or kill process: `lsof -ti:5000 | xargs kill -9`
+**Solution:** Change PORT in backend `.env` or kill the existing process.
 
 ### Frontend Can't Connect to Backend
-**Solution:**
-- Check `REACT_APP_API_URL` in frontend `.env`
-- Make sure backend is running
-- Check CORS settings in `backend/server.js`
+**Solution:** Check `REACT_APP_API_URL` in frontend `.env` and ensure backend is running.
 
 ### Email Not Sending
-**Solution:**
-- Use Gmail App Password (not regular password)
-- Check EMAIL_USER and EMAIL_PASSWORD in `.env`
-- Verify 2FA is enabled on Gmail
-
----
-
-## 📝 Missing Files to Create
-
-You still need to create these frontend pages:
-
-### Dashboard.js
-```javascript
-// Patient dashboard with stats and quick actions
-```
-
-### BookAppointment.js
-```javascript
-// Form to book appointment with doctor selection
-```
-
-### MyAppointments.js
-```javascript
-// List of user's appointments
-```
-
-### AIAnalysis.js
-```javascript
-// Symptom selector and AI analysis display
-```
-
-### HealthReminders.js
-```javascript
-// Configure health reminder preferences
-```
-
-### DoctorDashboard.js
-```javascript
-// Doctor's view of appointments
-```
-
-**I can create these for you if you need them!**
-
----
-
-## 🎯 Features to Add (Future Enhancements)
-
-1. ✅ Video consultation
-2. ✅ Payment integration
-3. ✅ Prescription download PDF
-4. ✅ Medical reports upload
-5. ✅ Chat with doctor
-6. ✅ Admin dashboard
-7. ✅ Doctor reviews and ratings
-8. ✅ Appointment history charts
+**Solution:** Use Gmail App Password (not regular password). Verify 2FA is enabled.
 
 ---
 
@@ -608,34 +527,9 @@ You still need to create these frontend pages:
 
 ---
 
-## 📞 Support
-
-For issues:
-1. Check backend console for errors
-2. Check frontend console (F12 in browser)
-3. Verify MongoDB is running
-4. Check `.env` configuration
-5. Ensure all dependencies are installed
-
----
-
 ## 📄 License
 
 This project is for educational purposes - MIT License
-
----
-
-## 🎉 Success Checklist
-
-- [ ] MongoDB is installed and running
-- [ ] Backend dependencies installed (`npm install`)
-- [ ] Frontend dependencies installed (`npm install`)
-- [ ] `.env` files configured properly
-- [ ] Backend running on port 5000
-- [ ] Frontend running on port 3000
-- [ ] Can register and login
-- [ ] Can test AI analysis
-- [ ] Notifications working
 
 ---
 
