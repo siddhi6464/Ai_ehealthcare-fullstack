@@ -159,7 +159,7 @@ const DoctorProfile = () => {
                 
                 {/* Left Column Config */}
                 <div className="form-column">
-                  <h3>Avatar Selection</h3>
+                  <h3>Avatar Selection & Upload</h3>
                   <div className="avatar-gallery">
                     {availableAvatars.map(url => (
                        <img 
@@ -170,6 +170,25 @@ const DoctorProfile = () => {
                          onClick={() => setFormData({...formData, avatarUrl: url})}
                        />
                     ))}
+                  </div>
+                  <div className="form-group custom-avatar-upload">
+                    <label>Or Upload Custom Picture</label>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="form-control"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setFormData({...formData, avatarUrl: reader.result});
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }} 
+                    />
+                    <small className="text-light">Select a nice professional photo. Image will be saved to your profile.</small>
                   </div>
 
                   <div className="form-group">

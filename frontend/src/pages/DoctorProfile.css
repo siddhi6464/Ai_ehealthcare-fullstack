@@ -200,6 +200,27 @@
   box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
 }
 
+.custom-avatar-upload {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px dashed #cbd5e1;
+}
+
+.custom-avatar-upload label {
+  font-weight: 600;
+  color: #334155;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.custom-avatar-upload small {
+  display: block;
+  margin-top: 8px;
+  color: #64748b;
+}
+
 .form-row.split {
   display: grid;
   grid-template-columns: 1fr 1fr;
