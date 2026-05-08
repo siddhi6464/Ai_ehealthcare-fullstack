@@ -7,7 +7,7 @@ const DoctorProfile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     name: '',
     specialization: '',
@@ -95,21 +95,21 @@ const DoctorProfile = () => {
   return (
     <div className="page doctor-profile-page">
       <div className="container">
-        
+
         {/* Profile Header */}
         <div className="profile-header">
           <div className="profile-hero">
             <img src={editing ? formData.avatarUrl : profile.avatarUrl} alt="Doctor Avatar" className="profile-avatar-large" />
-            
+
             <div className="profile-title-block">
               <h1>Dr. {editing ? formData.name : profile.name}</h1>
               <p className="profile-spec">{editing ? formData.specialization : profile.specialization}</p>
               {!editing && (
-                 <button className="btn-edit-mode" onClick={() => setEditing(true)}>✎ Edit Profile</button>
+                <button className="btn-edit-mode" onClick={() => setEditing(true)}>✎ Edit Profile</button>
               )}
             </div>
           </div>
-          
+
           <div className="profile-quick-stats">
             <div className="stat-box">
               <span className="stat-value">{editing ? formData.experience : profile.experience} yrs</span>
@@ -132,13 +132,13 @@ const DoctorProfile = () => {
             <div className="profile-board profile-bio">
               <h2>About Me</h2>
               <p>{profile.description}</p>
-              
+
               <div className="qualifications-block">
                 <h3>Credentials</h3>
                 <p><strong>Qualifications:</strong> {profile.qualification}</p>
               </div>
             </div>
-            
+
             <div className="profile-board profile-achievements">
               <h2>Achievements & Honors</h2>
               {profile.achievements && profile.achievements.length > 0 ? (
@@ -156,37 +156,37 @@ const DoctorProfile = () => {
           <div className="profile-editor-form">
             <form onSubmit={handleSave}>
               <div className="editor-grid">
-                
+
                 {/* Left Column Config */}
                 <div className="form-column">
                   <h3>Avatar Selection & Upload</h3>
                   <div className="avatar-gallery">
                     {availableAvatars.map(url => (
-                       <img 
-                         key={url} 
-                         src={url} 
-                         alt="avatar option" 
-                         className={`avatar-option ${formData.avatarUrl === url ? 'selected' : ''}`}
-                         onClick={() => setFormData({...formData, avatarUrl: url})}
-                       />
+                      <img
+                        key={url}
+                        src={url}
+                        alt="avatar option"
+                        className={`avatar-option ${formData.avatarUrl === url ? 'selected' : ''}`}
+                        onClick={() => setFormData({ ...formData, avatarUrl: url })}
+                      />
                     ))}
                   </div>
                   <div className="form-group custom-avatar-upload">
                     <label>Or Upload Custom Picture</label>
-                    <input 
-                      type="file" 
-                      accept="image/*" 
+                    <input
+                      type="file"
+                      accept="image/*"
                       className="form-control"
                       onChange={(e) => {
                         const file = e.target.files[0];
                         if (file) {
                           const reader = new FileReader();
                           reader.onloadend = () => {
-                            setFormData({...formData, avatarUrl: reader.result});
+                            setFormData({ ...formData, avatarUrl: reader.result });
                           };
                           reader.readAsDataURL(file);
                         }
-                      }} 
+                      }}
                     />
                     <small className="text-light">Select a nice professional photo. Image will be saved to your profile.</small>
                   </div>
@@ -195,7 +195,7 @@ const DoctorProfile = () => {
                     <label>Full Name</label>
                     <input type="text" name="name" value={formData.name} onChange={handleInputChange} required className="form-control" />
                   </div>
-                  
+
                   <div className="form-row split">
                     <div className="form-group">
                       <label>Specialization</label>
@@ -223,11 +223,11 @@ const DoctorProfile = () => {
                 <div className="form-column">
                   <div className="form-group">
                     <label>Professional Biography</label>
-                    <textarea 
-                      name="description" 
-                      value={formData.description} 
-                      onChange={handleInputChange} 
-                      rows="5" 
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      rows="5"
                       className="form-control"
                       placeholder="Tell your patients about your practice..."
                     ></textarea>
@@ -237,10 +237,10 @@ const DoctorProfile = () => {
                     <label>Achievements & Honors</label>
                     {formData.achievements.map((ach, idx) => (
                       <div key={idx} className="achievement-input-row">
-                        <input 
-                          type="text" 
-                          value={ach} 
-                          onChange={(e) => handleAchievementChange(idx, e.target.value)} 
+                        <input
+                          type="text"
+                          value={ach}
+                          onChange={(e) => handleAchievementChange(idx, e.target.value)}
                           className="form-control"
                           placeholder="e.g. Voted Top Doctor 2023"
                         />
