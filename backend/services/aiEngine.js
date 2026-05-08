@@ -205,14 +205,36 @@ function analyzeSymptoms(symptoms, medicalHistory = [], vitals = {}) {
     analysis.recommendations.unshift('Call emergency services or go to nearest hospital immediately');
   }
 
+  // Determine actual fever severity based on temperature if provided
+  const temp = vitals.temperature ? parseFloat(vitals.temperature) : null;
+  let feverSeverityOverride = null;
+  if (symptoms.includes('fever') && temp !== null) {
+    if (temp < 99) {
+      // Normal body temperature range — not actually a fever
+      feverSeverityOverride = 'low';
+    } else if (temp >= 99 && temp <= 102) {
+      // Mild to moderate fever
+      feverSeverityOverride = 'medium';
+    } else {
+      // High fever (> 102°F)
+      feverSeverityOverride = 'high';
+    }
+  }
+
   // Analyze each symptom
   symptoms.forEach(symptom => {
     const rule = symptomRules[symptom];
     if (rule) {
+      // Determine effective severity for this symptom
+      let effectiveSeverity = rule.severity;
+      if (symptom === 'fever' && feverSeverityOverride !== null) {
+        effectiveSeverity = feverSeverityOverride;
+      }
+
       // Update severity
-      if (rule.severity === 'high' && analysis.severity !== 'high') {
+      if (effectiveSeverity === 'high' && analysis.severity !== 'high') {
         analysis.severity = 'high';
-      } else if (rule.severity === 'medium' && analysis.severity === 'low') {
+      } else if (effectiveSeverity === 'medium' && analysis.severity === 'low') {
         analysis.severity = 'medium';
       }
 
@@ -225,18 +247,44 @@ function analyzeSymptoms(symptoms, medicalHistory = [], vitals = {}) {
       // Add precautions
       analysis.precautions.push(...rule.precautions);
       
-      // Set urgency
-      if (rule.urgency && !analysis.urgency) {
+      // Set urgency (override for fever based on temperature)
+      if (symptom === 'fever' && feverSeverityOverride !== null) {
+        if (feverSeverityOverride === 'low') {
+          // Normal temp — no urgency for fever
+          analysis.urgency = analysis.urgency || null;
+        } else if (feverSeverityOverride === 'medium') {
+          if (!analysis.urgency) {
+            analysis.urgency = 'Monitor temperature. Consult doctor if fever rises above 102°F or persists beyond 3 days';
+          }
+        } else {
+          analysis.urgency = '⚠️ High fever detected - Seek medical attention immediately';
+        }
+      } else if (rule.urgency && !analysis.urgency) {
         analysis.urgency = rule.urgency;
       }
     }
   });
 
+  // If fever is selected but temperature is normal, adjust severity down if no other serious symptoms
+  if (symptoms.includes('fever') && feverSeverityOverride === 'low') {
+    const nonFeverSymptoms = symptoms.filter(s => s !== 'fever');
+    const hasHighSeveritySymptom = nonFeverSymptoms.some(s => {
+      const rule = symptomRules[s];
+      return rule && rule.severity === 'high';
+    });
+    if (!hasHighSeveritySymptom && analysis.severity !== 'high') {
+      analysis.severity = 'low';
+      if (!analysis.urgency) {
+        analysis.urgency = 'Your temperature is within normal range. No immediate concern, but monitor for changes.';
+      }
+    }
+  }
+
   // Determine suggested specialist
   analysis.suggestedSpecialist = determineSuggestedSpecialist(symptoms);
 
   // Check vitals for risk factors
-  if (vitals.temperature && vitals.temperature > 102) {
+  if (temp && temp > 102) {
     analysis.riskFactors.push('High fever detected');
     analysis.recommendations.unshift('Temperature is critically high - seek medical attention');
   }
@@ -427,6 +475,23 @@ async function generateAIAnalysis(symptoms, medicalHistory = [], vitals = {}) {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'MISSING_API_KEY');
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
+  // Build temperature context for the prompt
+  const tempValue = vitals.temperature ? parseFloat(vitals.temperature) : null;
+  let temperatureContext = '';
+  if (symptoms.some(s => s.toLowerCase().includes('fever'))) {
+    if (tempValue !== null) {
+      if (tempValue < 99) {
+        temperatureContext = `\nIMPORTANT TEMPERATURE CONTEXT: The patient's temperature is ${tempValue}°F, which is within the NORMAL range (below 99°F). Even though "fever" was selected as a symptom, this is NOT an actual fever. Severity for this should be "low". Do NOT recommend visiting a doctor urgently for fever at this temperature.`;
+      } else if (tempValue >= 99 && tempValue <= 102) {
+        temperatureContext = `\nTEMPERATURE CONTEXT: The patient's temperature is ${tempValue}°F, which indicates a mild to moderate fever. Severity should be "medium" unless other serious symptoms are present.`;
+      } else {
+        temperatureContext = `\nTEMPERATURE CONTEXT: The patient's temperature is ${tempValue}°F, which is HIGH (above 102°F). This is a serious fever requiring urgent medical attention.`;
+      }
+    } else {
+      temperatureContext = `\nTEMPERATURE CONTEXT: No temperature value was provided. Since fever is reported without a temperature reading, assume moderate concern and set severity to "medium" at most for fever alone.`;
+    }
+  }
+
   const prompt = `
 You are a highly intelligent medical AI assistant.
 Evaluate the following patient profile and return a JSON object exactly matching the requested schema. DO NOT include any markdown blocks (like \`\`\`json), just return the raw JSON object.
@@ -435,12 +500,19 @@ Patient Profile:
 - Symptoms: ${symptoms.join(', ')}
 - Vitals: ${JSON.stringify(vitals)}
 - Medical History (Diseases/Allergies): ${medicalHistory.length > 0 ? medicalHistory.join(', ') : 'None'}
+${temperatureContext}
 
 CRITICAL MEDICAL RULES:
 1. NEVER prescribe banned medications (e.g. Ranitidine, Nimesulide). If needed, substitute with safe modern OTCs (e.g. Pantoprazole).
 2. If the user has a stated allergy in their medical history, DO NOT prescribe related medications. Note the allergy in the 'lifestyle' or 'precautions' lists.
 3. If an antibiotic or heavy drug is required, set requiresPrescription to true. Otherwise false.
 4. "severity" MUST be one of: "low", "medium", "high".
+5. FEVER SEVERITY RULES (MUST FOLLOW):
+   - Temperature below 99°F = NOT a real fever. Severity MUST be "low". Do NOT suggest urgently visiting a doctor.
+   - Temperature 99°F to 102°F = Mild/moderate fever. Severity should be "medium" at most.
+   - Temperature above 102°F = High fever. Severity can be "high".
+   - If no temperature is provided with fever, default to "medium" severity at most.
+   - Only escalate to "high" severity for fever when temperature exceeds 102°F or other emergency symptoms are present.
 
 EXPECTED JSON SCHEMA:
 {
