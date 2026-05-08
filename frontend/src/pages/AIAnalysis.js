@@ -19,6 +19,7 @@ const AIAnalysis = () => {
     bloodPressure: '',
     bloodSugar: ''
   });
+  const [customSymptom, setCustomSymptom] = useState('');
   const [medical, setMedical] = useState({
     diseases: '',
     allergies: ''
@@ -84,8 +85,8 @@ const AIAnalysis = () => {
   };
 
   const handleAnalyze = async () => {
-    if (selectedSymptoms.length === 0) {
-      toast.warning('Please select at least one symptom');
+    if (selectedSymptoms.length === 0 && customSymptom.trim() === '') {
+      toast.warning('Please select at least one symptom or describe your condition');
       return;
     }
 
@@ -105,8 +106,13 @@ const AIAnalysis = () => {
       if (medical.diseases) historyArray.push(...medical.diseases.split(',').map(d => d.trim()));
       if (medical.allergies) historyArray.push(`Allergy: ${medical.allergies}`);
 
+      const payloadSymptoms = [...selectedSymptoms];
+      if (customSymptom.trim() !== '') {
+        payloadSymptoms.push(`Patient describes condition as: ${customSymptom.trim()}`);
+      }
+
       const requestData = {
-        symptoms: selectedSymptoms,
+        symptoms: payloadSymptoms,
         medicalHistory: historyArray,
         vitals: {
           ...(vitals.temperature && { temperature: parseFloat(vitals.temperature) }),
@@ -191,6 +197,20 @@ const AIAnalysis = () => {
               </div>
 
               <div className="mt-3">
+                <h3 style={{ color: '#1b2559', fontSize: '1.2rem', marginBottom: '16px', fontWeight: '800' }}>Describe Your Condition</h3>
+                <div className="modern-form-group">
+                  <label>Other Symptoms (Optional)</label>
+                  <textarea
+                    className="modern-input"
+                    rows="3"
+                    placeholder="How are you feeling? E.g. feeling anxious, having trouble sleeping..."
+                    value={customSymptom}
+                    onChange={(e) => setCustomSymptom(e.target.value)}
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="mt-3">
                 <h3 style={{ color: '#1b2559', fontSize: '1.2rem', marginBottom: '16px', fontWeight: '800' }}>Vitals (Optional)</h3>
                 <div className="modern-form-group">
                   <label>Temperature (°F)</label>
@@ -202,6 +222,11 @@ const AIAnalysis = () => {
                     value={vitals.temperature}
                     onChange={handleVitalChange}
                   />
+                  {selectedSymptoms.includes('fever') && vitals.temperature && parseFloat(vitals.temperature) < 99 && (
+                    <small style={{ color: '#2ecc71', fontWeight: '600', display: 'block', marginTop: '4px' }}>
+                      Your fever is normal.
+                    </small>
+                  )}
                 </div>
 
                 <div className="modern-form-group">
@@ -258,7 +283,7 @@ const AIAnalysis = () => {
               <button
                 onClick={handleAnalyze}
                 className="modern-btn-primary mt-2"
-                disabled={loading || selectedSymptoms.length === 0}
+                disabled={loading || (selectedSymptoms.length === 0 && customSymptom.trim() === '')}
               >
                 {loading ? 'Analyzing...' : <><FaBrain /> Analyze Symptoms</>}
               </button>

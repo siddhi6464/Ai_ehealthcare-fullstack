@@ -18,4 +18,7 @@ router.patch('/:id/consultation', restrictTo('doctor'), appointmentController.ad
 // Get all doctors (for booking)
 router.get('/doctors', appointmentController.getAllDoctors);
 
+// Get booked slots
+router.get('/booked-slots', appointmentController.getBookedSlots);
+
 module.exports = router;

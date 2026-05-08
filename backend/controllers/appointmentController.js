@@ -1,6 +1,6 @@
 const Appointment = require('../models/Appointment');
 const User = require('../models/User');
-const { sendAppointmentConfirmation } = require('../services/emailService');
+const { sendAppointmentConfirmation, sendDoctorAppointmentConfirmation, sendAppointmentCancellation } = require('../services/emailService');
 const { analyzeSymptoms, generatePrescription } = require('../services/aiEngine');
 
 /**
@@ -62,12 +62,18 @@ exports.createAppointment = async (req, res) => {
     // Send confirmation email
     try {
       const patient = await User.findById(req.user._id);
-      await sendAppointmentConfirmation(patient.email, {
+      const appointmentDetails = {
         doctorName: doctorUser.name,
+        patientName: patient.name,
         date: new Date(appointmentDate).toDateString(),
         time: `${timeSlot.startTime} - ${timeSlot.endTime}`,
         reason
-      });
+      };
+      
+      // To Patient
+      await sendAppointmentConfirmation(patient.email, appointmentDetails);
+      // To Doctor
+      await sendDoctorAppointmentConfirmation(doctorUser.email, appointmentDetails);
     } catch (emailError) {
       console.log('Email sending failed:', emailError.message);
     }
@@ -137,7 +143,7 @@ exports.updateAppointmentStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const appointment = await Appointment.findById(id);
+    const appointment = await Appointment.findById(id).populate('doctor', 'name email').populate('patient', 'name email');
 
     if (!appointment) {
       return res.status(404).json({
@@ -147,8 +153,8 @@ exports.updateAppointmentStatus = async (req, res) => {
     }
 
     // Check authorization
-    if (appointment.doctor.toString() !== req.user._id.toString() &&
-        appointment.patient.toString() !== req.user._id.toString()) {
+    if (appointment.doctor._id.toString() !== req.user._id.toString() &&
+        appointment.patient._id.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         status: 'error',
         message: 'Not authorized'
@@ -157,6 +163,23 @@ exports.updateAppointmentStatus = async (req, res) => {
 
     appointment.status = status;
     await appointment.save();
+
+    // Send cancellation emails if status is changed to cancelled
+    if (status === 'cancelled') {
+      try {
+        const appointmentDetails = {
+          doctorName: appointment.doctor.name,
+          patientName: appointment.patient.name,
+          date: new Date(appointment.appointmentDate).toDateString(),
+          time: `${appointment.timeSlot.startTime} - ${appointment.timeSlot.endTime}`
+        };
+        
+        await sendAppointmentCancellation(appointment.patient.email, appointmentDetails, false);
+        await sendAppointmentCancellation(appointment.doctor.email, appointmentDetails, true);
+      } catch (emailError) {
+        console.log('Cancellation email sending failed:', emailError.message);
+      }
+    }
 
     res.status(200).json({
       status: 'success',
@@ -228,6 +251,48 @@ exports.getAllDoctors = async (req, res) => {
       status: 'success',
       results: doctors.length,
       data: { doctors }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+};
+
+/**
+ * Get booked slots for a specific doctor on a given date
+ */
+exports.getBookedSlots = async (req, res) => {
+  try {
+    const { doctorId, date } = req.query;
+
+    if (!doctorId || !date) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Please provide doctorId and date'
+      });
+    }
+
+    // Get start and end of the specified date
+    const targetDate = new Date(date);
+    const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+
+    const appointments = await Appointment.find({
+      doctor: doctorId,
+      appointmentDate: {
+        $gte: startOfDay,
+        $lte: endOfDay
+      },
+      status: { $ne: 'cancelled' }
+    });
+
+    const bookedSlots = appointments.map(app => app.timeSlot.startTime);
+
+    res.status(200).json({
+      status: 'success',
+      data: { bookedSlots }
     });
   } catch (error) {
     res.status(500).json({

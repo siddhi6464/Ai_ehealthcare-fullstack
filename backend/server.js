@@ -28,15 +28,15 @@ mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => {
-  console.log('✅ MongoDB Connected Successfully');
-  // Start notification scheduler after DB connection
-  startNotificationScheduler();
-})
-.catch((err) => {
-  console.error('❌ MongoDB Connection Error:', err);
-  process.exit(1);
-});
+  .then(() => {
+    console.log('✅ MongoDB Connected Successfully');
+    // Start notification scheduler after DB connection
+    startNotificationScheduler();
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB Connection Error:', err);
+    process.exit(1);
+  });
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -47,8 +47,8 @@ app.use('/api/users', userRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'success', 
+  res.json({
+    status: 'success',
     message: 'eHealthCare API is running',
     timestamp: new Date().toISOString()
   });
@@ -57,17 +57,17 @@ app.get('/api/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
+  res.status(500).json({
     status: 'error',
-    message: err.message || 'Something went wrong!' 
+    message: err.message || 'Something went wrong!'
   });
 });
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ 
+  res.status(404).json({
     status: 'error',
-    message: 'Route not found' 
+    message: 'Route not found'
   });
 });
 

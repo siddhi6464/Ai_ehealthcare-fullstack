@@ -17,8 +17,11 @@ import {
   FaRegClock, 
   FaInfoCircle, 
   FaSearchPlus,
-  FaPlus
+  FaPlus,
+  FaDownload,
+  FaFilePrescription
 } from 'react-icons/fa';
+import jsPDF from 'jspdf';
 import './MyAppointments.css';
 
 const MyAppointments = () => {
@@ -90,6 +93,7 @@ const MyAppointments = () => {
   });
 
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
       weekday: 'long', 
@@ -97,6 +101,74 @@ const MyAppointments = () => {
       month: 'long', 
       day: 'numeric' 
     });
+  };
+
+  const handleDownloadPrescription = (appointment) => {
+    try {
+      const doc = new jsPDF();
+      doc.setFontSize(22);
+      doc.setTextColor(44, 62, 80);
+      doc.text('eHealthCare - Medical Prescription', 20, 20);
+      
+      doc.setLineWidth(0.5);
+      doc.line(20, 25, 190, 25);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Date: ${formatDate(appointment.appointmentDate)}`, 20, 40);
+      doc.text(`Doctor: Dr. ${appointment.doctor?.name || 'Unknown'}`, 20, 50);
+      doc.text(`Patient: ${appointment.patient?.name || 'Patient'}`, 120, 40);
+      
+      let yOffset = 70;
+      
+      if (appointment.diagnosis) {
+        doc.setFontSize(14);
+        doc.setTextColor(41, 128, 185);
+        doc.text('Diagnosis:', 20, yOffset);
+        yOffset += 10;
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        const splitDiagnosis = doc.splitTextToSize(appointment.diagnosis, 170);
+        doc.text(splitDiagnosis, 20, yOffset);
+        yOffset += (splitDiagnosis.length * 7) + 10;
+      }
+      
+      if (appointment.prescription) {
+        doc.setFontSize(14);
+        doc.setTextColor(41, 128, 185);
+        doc.text('Prescription Details:', 20, yOffset);
+        yOffset += 10;
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        const splitPrescription = doc.splitTextToSize(appointment.prescription, 170);
+        doc.text(splitPrescription, 20, yOffset);
+        yOffset += (splitPrescription.length * 7) + 10;
+      }
+
+      if (appointment.doctorNotes) {
+        doc.setFontSize(14);
+        doc.setTextColor(41, 128, 185);
+        doc.text('Doctor\'s Notes:', 20, yOffset);
+        yOffset += 10;
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        const splitNotes = doc.splitTextToSize(appointment.doctorNotes, 170);
+        doc.text(splitNotes, 20, yOffset);
+        yOffset += (splitNotes.length * 7) + 10;
+      }
+
+      if (appointment.followUpDate) {
+        doc.setFontSize(12);
+        doc.setTextColor(231, 76, 60);
+        doc.text(`Next Follow-up: ${formatDate(appointment.followUpDate)}`, 20, yOffset + 10);
+      }
+
+      doc.save(`Prescription_Dr_${appointment.doctor?.name || 'Doctor'}_${new Date().getTime()}.pdf`);
+      toast.success('Prescription downloaded successfully!');
+    } catch (err) {
+      console.error('Error generating PDF:', err);
+      toast.error('Failed to generate PDF');
+    }
   };
 
   if (loading) {
@@ -253,6 +325,15 @@ const MyAppointments = () => {
                   >
                     <FaSearchPlus /> View Details
                   </button>
+                  {appointment.status === 'completed' && appointment.prescription && (
+                    <button
+                      className="ma-btn-view"
+                      style={{ backgroundColor: '#27ae60', color: 'white', border: 'none' }}
+                      onClick={() => handleDownloadPrescription(appointment)}
+                    >
+                      <FaDownload /> Download Prescription
+                    </button>
+                  )}
                   {appointment.status === 'scheduled' && (
                     <button
                       className="ma-btn-cancel"
@@ -310,6 +391,25 @@ const MyAppointments = () => {
                         </ul>
                       </>
                     )}
+                  </div>
+                )}
+
+                {selectedAppointment.status === 'completed' && selectedAppointment.prescription && (
+                  <div className="ma-detail-section">
+                    <h3><FaFilePrescription /> Medical Prescription</h3>
+                    <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #3498db' }}>
+                      {selectedAppointment.diagnosis && <p><strong>Diagnosis:</strong> <br/>{selectedAppointment.diagnosis}</p>}
+                      <p><strong>Prescription:</strong> <br/>{selectedAppointment.prescription}</p>
+                      {selectedAppointment.doctorNotes && <p><strong>Doctor's Notes:</strong> <br/>{selectedAppointment.doctorNotes}</p>}
+                      {selectedAppointment.followUpDate && <p><strong>Follow-up Date:</strong> <br/>{formatDate(selectedAppointment.followUpDate)}</p>}
+                    </div>
+                    <button 
+                      className="modern-btn-primary" 
+                      style={{ marginTop: '15px', width: '100%' }}
+                      onClick={() => handleDownloadPrescription(selectedAppointment)}
+                    >
+                      <FaDownload /> Download as PDF
+                    </button>
                   </div>
                 )}
               </div>

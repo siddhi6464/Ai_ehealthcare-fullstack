@@ -19,6 +19,7 @@ const BookAppointment = () => {
   });
 
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
+  const [bookedSlots, setBookedSlots] = useState([]);
 
   const availableSymptoms = [
     'Fever', 'Cough', 'Headache', 'Chest Pain', 'Stomach Pain',
@@ -46,6 +47,24 @@ const BookAppointment = () => {
       }
     }
   }, [location.state]);
+
+  useEffect(() => {
+    if (formData.doctor && formData.appointmentDate) {
+      fetchBookedSlots(formData.doctor, formData.appointmentDate);
+    } else {
+      setBookedSlots([]);
+    }
+  }, [formData.doctor, formData.appointmentDate]);
+
+  const fetchBookedSlots = async (doctorId, date) => {
+    try {
+      const response = await api.get(`/appointments/booked-slots?doctorId=${doctorId}&date=${date}`);
+      setBookedSlots(response.data.data.bookedSlots || []);
+    } catch (error) {
+      console.error('Error fetching booked slots:', error);
+      toast.error('Failed to load available time slots');
+    }
+  };
 
   const fetchDoctors = async () => {
     try {
@@ -200,9 +219,14 @@ const BookAppointment = () => {
                     className="modern-input"
                   >
                     <option value="">-- Select Time --</option>
-                    {timeSlots.map(slot => (
-                      <option key={slot} value={slot}>{slot}</option>
-                    ))}
+                    {timeSlots.map(slot => {
+                      const isBooked = bookedSlots.includes(slot);
+                      return (
+                        <option key={slot} value={slot} disabled={isBooked}>
+                          {slot} {isBooked ? '(Booked)' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>

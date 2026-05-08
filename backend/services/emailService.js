@@ -113,8 +113,93 @@ async function sendAppointmentConfirmation(to, appointmentDetails) {
   return await sendEmailNotification(to, subject, 'Appointment Confirmed', html);
 }
 
+/**
+ * Send appointment confirmation email to doctor
+ */
+async function sendDoctorAppointmentConfirmation(to, appointmentDetails) {
+  const subject = 'New Appointment Booked - eHealthCare';
+  const html = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+      <h2 style="color: #3498db;">📅 New Appointment</h2>
+      <p style="font-size: 16px;">A new appointment has been booked with you.</p>
+      
+      <div style="background: #ecf0f1; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <p style="margin: 5px 0;"><strong>Patient:</strong> ${appointmentDetails.patientName}</p>
+        <p style="margin: 5px 0;"><strong>Date:</strong> ${appointmentDetails.date}</p>
+        <p style="margin: 5px 0;"><strong>Time:</strong> ${appointmentDetails.time}</p>
+        <p style="margin: 5px 0;"><strong>Reason:</strong> ${appointmentDetails.reason}</p>
+      </div>
+      
+      <hr style="border: 1px solid #ecf0f1; margin: 20px 0;">
+      <p style="font-size: 12px; color: #7f8c8d;">
+        This is an automated message from eHealthCare System.
+      </p>
+    </div>
+  `;
+  return await sendEmailNotification(to, subject, 'New Appointment Booked', html);
+}
+
+/**
+ * Send doctor login alert
+ */
+async function sendDoctorLoginAlert(to, name) {
+  const subject = 'New Login Detected - eHealthCare';
+  const html = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+      <h2 style="color: #f39c12;">🔔 Security Alert: New Login</h2>
+      <p style="font-size: 16px;">Hello Dr. ${name},</p>
+      <p style="font-size: 16px; line-height: 1.6;">
+        We detected a new login to your eHealthCare doctor account just now.
+      </p>
+      <p style="font-size: 14px; color: #7f8c8d;">
+        If this was you, no further action is required. If you did not log in, please reset your password immediately.
+      </p>
+      <hr style="border: 1px solid #ecf0f1; margin: 20px 0;">
+      <p style="font-size: 12px; color: #7f8c8d;">
+        This is an automated security message from eHealthCare System.
+      </p>
+    </div>
+  `;
+  return await sendEmailNotification(to, subject, 'New Login Detected', html);
+}
+
+/**
+ * Send appointment cancellation email
+ */
+async function sendAppointmentCancellation(to, appointmentDetails, isDoctor = false) {
+  const subject = 'Appointment Cancelled - eHealthCare';
+  const greeting = isDoctor ? `Dr. ${appointmentDetails.doctorName}` : appointmentDetails.patientName;
+  const personContext = isDoctor ? `with patient ${appointmentDetails.patientName}` : `with Dr. ${appointmentDetails.doctorName}`;
+  
+  const html = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+      <h2 style="color: #e74c3c;">❌ Appointment Cancelled</h2>
+      <p style="font-size: 16px;">Hello ${greeting},</p>
+      <p style="font-size: 16px;">Your appointment ${personContext} has been cancelled.</p>
+      
+      <div style="background: #fdf2f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <p style="margin: 5px 0;"><strong>Date:</strong> ${appointmentDetails.date}</p>
+        <p style="margin: 5px 0;"><strong>Time:</strong> ${appointmentDetails.time}</p>
+      </div>
+      
+      <p style="font-size: 14px; color: #7f8c8d;">
+        If you need to reschedule, please visit the eHealthCare portal.
+      </p>
+      
+      <hr style="border: 1px solid #ecf0f1; margin: 20px 0;">
+      <p style="font-size: 12px; color: #7f8c8d;">
+        This is an automated message from eHealthCare System.
+      </p>
+    </div>
+  `;
+  return await sendEmailNotification(to, subject, 'Appointment Cancelled', html);
+}
+
 module.exports = {
   sendEmailNotification,
   sendWelcomeEmail,
-  sendAppointmentConfirmation
+  sendAppointmentConfirmation,
+  sendDoctorAppointmentConfirmation,
+  sendDoctorLoginAlert,
+  sendAppointmentCancellation
 };

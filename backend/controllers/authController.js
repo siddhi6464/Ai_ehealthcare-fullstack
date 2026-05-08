@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { sendWelcomeEmail } = require('../services/emailService');
+const { sendWelcomeEmail, sendDoctorLoginAlert } = require('../services/emailService');
 
 /**
  * Generate JWT token
@@ -103,6 +103,15 @@ exports.login = async (req, res) => {
 
     // Remove password from output
     user.password = undefined;
+
+    // Send login alert to doctors
+    if (user.role === 'doctor') {
+      try {
+        await sendDoctorLoginAlert(user.email, user.name);
+      } catch (emailError) {
+        console.log('Doctor login email failed:', emailError.message);
+      }
+    }
 
     res.status(200).json({
       status: 'success',
