@@ -41,6 +41,7 @@ exports.createAppointment = async (req, res) => {
       aiRecommendations = {
         suggestions: analysis.recommendations.slice(0, 5),
         precautions: analysis.precautions.slice(0, 5),
+        
         generatedAt: new Date()
       };
     }

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { aiAPI, userAPI } from '../services/api';
 import { toast } from 'react-toastify';
-import { FaBrain, FaCheckCircle, FaExclamationTriangle
-} from 'react-icons/fa';
+import { FaBrain, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
+import FloatingBrain from '../components/animations/FloatingBrain';
+import FloatingHeart from '../components/animations/FloatingHeart';
+import FloatingDNA from '../components/animations/FloatingDNA';
 import './AIAnalysis.css';
 
 const AIAnalysis = () => {
@@ -25,6 +27,7 @@ const AIAnalysis = () => {
   ] = useState(null);
   const [loading, setLoading
   ] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     loadSymptoms();
@@ -154,78 +157,71 @@ const AIAnalysis = () => {
   };
 
   return (
-    <div className="page ai-analysis">
+    <div className="page modern-ai-analysis">
       <div className="container">
-        <div className="page-header">
-          <FaBrain style={
-    { fontSize: '3rem'
-    }
-  } />
-          <h1>AI Health Analysis</h1>
-          <p>Get intelligent health recommendations based on your symptoms</p>
+        <div className="ai-header animate-fade-in">
+          <div className="ai-header-content">
+            <div className="ai-header-icon">
+              <FaBrain />
+            </div>
+            <div className="ai-header-text">
+              <h1>AI Health Check</h1>
+              <p>Get intelligent, personalized health recommendations in seconds.</p>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-2">
+        <div className="modern-grid-2 animate-slide-up">
           { /* Input Section */}
-          <div className="card">
-            <div className="card-header">
+          <div className="modern-card">
+            <div className="modern-card-header">
               <h2>Select Your Symptoms</h2>
             </div>
-            <div className="card-body">
+            <div className="modern-card-body">
               <div className="symptoms-grid">
                 {availableSymptoms.map(symptom => (
                   <div
-                    key={symptom.value
-    }
-                    className={`symptom-chip ${selectedSymptoms.includes(symptom.value) ? 'selected' : ''
-      }`
-    }
-                    onClick={() => handleSymptomToggle(symptom.value)
-    }
+                    key={symptom.value}
+                    className={`symptom-chip ${selectedSymptoms.includes(symptom.value) ? 'selected' : ''}`}
+                    onClick={() => handleSymptomToggle(symptom.value)}
                   >
-                    {symptom.label
-    }
+                    {symptom.label}
                   </div>
-                ))
-  }
+                ))}
               </div>
 
               <div className="mt-3">
-                <h3>Vitals (Optional)</h3>
-                <div className="form-group">
+                <h3 style={{ color: '#1b2559', fontSize: '1.2rem', marginBottom: '16px', fontWeight: '800' }}>Vitals (Optional)</h3>
+                <div className="modern-form-group">
                   <label>Temperature (°F)</label>
                   <input
                     type="number"
                     name="temperature"
-                    className="form-control"
+                    className="modern-input"
                     placeholder="e.g., 98.6"
-                    value={vitals.temperature
-  }
-                    onChange={handleVitalChange
-  }
+                    value={vitals.temperature}
+                    onChange={handleVitalChange}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="modern-form-group">
                   <label>Blood Pressure</label>
                   <input
                     type="text"
                     name="bloodPressure"
-                    className="form-control"
+                    className="modern-input"
                     placeholder="e.g., 120/80"
-                    value={vitals.bloodPressure
-  }
-                    onChange={handleVitalChange
-  }
+                    value={vitals.bloodPressure}
+                    onChange={handleVitalChange}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="modern-form-group">
                   <label>Blood Sugar (mg/dL)</label>
                   <input
                     type="number"
                     name="bloodSugar"
-                    className="form-control"
+                    className="modern-input"
                     placeholder="e.g., 100"
                     value={vitals.bloodSugar}
                     onChange={handleVitalChange}
@@ -234,24 +230,24 @@ const AIAnalysis = () => {
               </div>
 
               <div className="mt-3">
-                <h3>Routine Checkup (Medical History)</h3>
-                <div className="form-group">
+                <h3 style={{ color: '#1b2559', fontSize: '1.2rem', marginBottom: '16px', fontWeight: '800' }}>Routine Checkup (Medical History)</h3>
+                <div className="modern-form-group">
                   <label>Existing Diseases / Conditions</label>
                   <input
                     type="text"
                     name="diseases"
-                    className="form-control"
+                    className="modern-input"
                     placeholder="e.g., Diabetes, Asthma (Comma separated)"
                     value={medical.diseases}
                     onChange={handleMedicalChange}
                   />
                 </div>
-                <div className="form-group">
+                <div className="modern-form-group">
                   <label>Known Allergies ⚠️</label>
                   <input
                     type="text"
                     name="allergies"
-                    className="form-control"
+                    className="modern-input"
                     placeholder="e.g., Penicillin, Peanuts"
                     value={medical.allergies}
                     onChange={handleMedicalChange}
@@ -260,181 +256,161 @@ const AIAnalysis = () => {
               </div>
 
               <button
-                onClick={handleAnalyze
-  }
-                className="btn btn-primary btn-block mt-2"
-                disabled={loading || selectedSymptoms.length === 0
-  }
+                onClick={handleAnalyze}
+                className="modern-btn-primary mt-2"
+                disabled={loading || selectedSymptoms.length === 0}
               >
-                {loading ? 'Analyzing...' : '🧠 Analyze Symptoms'
-  }
+                {loading ? 'Analyzing...' : <><FaBrain /> Analyze Symptoms</>}
               </button>
             </div>
           </div>
 
           { /* Results Section */}
-          <div>
-            {analysis ? (
-              <>
-                { /* Severity & Urgency */}
-                <div className="card" style={
-      { borderLeft: `5px solid ${getSeverityColor(analysis.analysis.severity)
-        }`
-      }
-    }>
-                  <div className="card-body">
-                    <div className="severity-badge" style={
-      { background: getSeverityColor(analysis.analysis.severity)
-      }
-    }>
-                      Severity: {analysis.analysis.severity.toUpperCase()
-    }
-                    </div>
-                    {analysis.analysis.urgency && (
-                      <div className="alert alert-danger mt-2">
-                        <FaExclamationTriangle /> {analysis.analysis.urgency
-      }
-                      </div>
-                    )
-    }
-                    <div className="mt-2">
-                      <strong>Suggested Specialist:</strong>
-                      <p>{analysis.analysis.suggestedSpecialist}</p>
-                    </div>
+          <div 
+            className="ai-results-panel"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            {/* Floating Background Layer */}
+            <FloatingBrain isHovered={isHovered} isAnalyzing={loading} />
+            <FloatingHeart isHovered={isHovered} isAnalyzing={loading} />
+            <FloatingDNA isHovered={isHovered} isAnalyzing={loading} />
 
-                    {getMatchingDoctors().length > 0 && (
-                      <div className="mt-3">
-                        <hr />
-                        <strong>👨‍⚕️ Available Matching Specialists:</strong>
-                        <div className="matching-doctors-list mt-2">
-                          {getMatchingDoctors().map(doc => (
-                            <div key={doc._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8f9fa', padding: '10px', borderRadius: '8px', marginBottom: '8px' }}>
-                              <div>
-                                <h4 style={{ margin: 0, fontSize: '1rem' }}>Dr. {doc.name}</h4>
-                                <span style={{ fontSize: '0.85rem', color: '#666' }}>{doc.specialization} ({doc.experience} yrs)</span>
+            {/* Content Layer */}
+            <div className="ai-results-content">
+              {analysis ? (
+                <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                  { /* Severity & Urgency */}
+                  <div className="modern-card severity-card" style={{ borderLeftColor: getSeverityColor(analysis.analysis.severity) }}>
+                    <div className="modern-card-body">
+                      <div className="severity-badge" style={{ background: getSeverityColor(analysis.analysis.severity) }}>
+                        Severity: {analysis.analysis.severity}
+                      </div>
+                      {analysis.analysis.urgency && (
+                        <div className="modern-alert alert-danger">
+                          <FaExclamationTriangle /> {analysis.analysis.urgency}
+                        </div>
+                      )}
+                      <div className="mt-2" style={{ color: '#1b2559' }}>
+                        <strong>Suggested Specialist:</strong>
+                        <p style={{ color: '#a3aed1', fontWeight: '500', marginTop: '4px' }}>{analysis.analysis.suggestedSpecialist}</p>
+                      </div>
+
+                      {getMatchingDoctors().length > 0 && (
+                        <div className="mt-3">
+                          <hr style={{ border: 'none', borderTop: '1px solid #f4f7fe', margin: '16px 0' }} />
+                          <strong style={{ color: '#1b2559', display: 'block', marginBottom: '12px' }}>👨‍⚕️ Available Matching Specialists:</strong>
+                          <div>
+                            {getMatchingDoctors().map(doc => (
+                              <div key={doc._id} className="doctor-match-item">
+                                <div className="doctor-match-info">
+                                  <h4>Dr. {doc.name}</h4>
+                                  <span>{doc.specialization} ({doc.experience} yrs)</span>
+                                </div>
+                                <button 
+                                  className="btn-book" 
+                                  onClick={() => handleBookDoctor(doc._id)}
+                                >
+                                  Book Now
+                                </button>
                               </div>
-                              <button 
-                                className="btn btn-primary" 
-                                style={{ padding: '5px 12px', fontSize: '0.9rem' }}
-                                onClick={() => handleBookDoctor(doc._id)}
-                              >
-                                Book Now
-                              </button>
-                            </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  { /* Possible Conditions */}
+                  <div className="modern-card">
+                    <div className="modern-card-header">
+                      <h3>Possible Conditions</h3>
+                    </div>
+                    <div className="modern-card-body">
+                      <ul className="modern-list">
+                        {analysis.analysis.possibleConditions.map((condition, idx) => (
+                          <li key={idx} className="condition-item">{condition}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  { /* Recommendations */}
+                  <div className="modern-card">
+                    <div className="modern-card-header">
+                      <h3><FaCheckCircle color="#2ecc71" /> Recommendations</h3>
+                    </div>
+                    <div className="modern-card-body">
+                      <ul className="modern-list">
+                        {analysis.analysis.riskFactors && analysis.analysis.riskFactors.map((risk, idx) => (
+                          <li key={`risk-${idx}`} style={{ color: '#e74c3c', borderLeftColor: '#e74c3c' }}>⚠️ {risk}</li>
+                        ))}
+                        {analysis.analysis.recommendations.map((rec, idx) => (
+                          <li key={`rec-${idx}`} className="recommendation-item">{rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  { /* Precautions */}
+                  <div className="modern-card">
+                    <div className="modern-card-header">
+                      <h3>⚠️ Precautions</h3>
+                    </div>
+                    <div className="modern-card-body">
+                      <ul className="modern-list">
+                        {analysis.analysis.precautions.map((prec, idx) => (
+                          <li key={idx} className="precaution-item">{prec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  { /* AI Prescription */}
+                  {analysis.prescription && analysis.prescription.medications.length > 0 && (
+                    <div className="modern-card">
+                      <div className="modern-card-header">
+                        <h3>💊 AI-Generated Prescription</h3>
+                      </div>
+                      <div className="modern-card-body">
+                        <ul className="modern-list">
+                          {analysis.prescription.medications.map((med, idx) => (
+                            <li key={idx} className="medication-item">
+                              <div className="medication-header">
+                                {med.medicine}
+                                {med.requiresPrescription && (
+                                  <span className="rx-badge">Rx Required</span>
+                                )}
+                              </div>
+                              <div className="med-detail"><strong>Dosage:</strong> {med.dosage}</div>
+                              <div className="med-detail"><strong>Frequency:</strong> {med.frequency}</div>
+                              <div className="med-detail"><strong>Duration:</strong> {med.duration}</div>
+                              <div className="med-detail"><strong>Instructions:</strong> {med.instructions}</div>
+                            </li>
                           ))}
+                        </ul>
+                        <div className="mt-2" style={{ background: '#f4f7fe', padding: '16px', borderRadius: '16px' }}>
+                          <strong style={{ color: '#1b2559' }}>Follow-up:</strong>
+                          <p style={{ margin: '4px 0 0 0', color: '#a3aed1', fontWeight: '500' }}>{analysis.prescription.followUp}</p>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                { /* Possible Conditions */}
-                <div className="card mt-2">
-                  <div className="card-header">
-                    <h3>Possible Conditions</h3>
-                  </div>
-                  <div className="card-body">
-                    <ul className="conditions-list">
-                      {analysis.analysis.possibleConditions.map((condition, idx) => (
-                        <li key={idx
-      }>{condition
-      }</li>
-                      ))
-    }
-                    </ul>
-                  </div>
-                </div>
-
-                { /* Recommendations */}
-                <div className="card mt-2">
-                  <div className="card-header">
-                    <h3><FaCheckCircle /> Recommendations</h3>
-                  </div>
-                  <div className="card-body">
-                    <ul className="recommendations-list">
-                      {analysis.analysis.riskFactors && analysis.analysis.riskFactors.map((risk, idx) => (
-                        <li key={`risk-${idx}`} style={{ color: '#d35400', fontWeight: 'bold' }}>⚠️ {risk}</li>
-                      ))}
-                      {analysis.analysis.recommendations.map((rec, idx) => (
-                        <li key={`rec-${idx}`}>{rec}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                { /* Precautions */}
-                <div className="card mt-2">
-                  <div className="card-header">
-                    <h3>⚠️ Precautions</h3>
-                  </div>
-                  <div className="card-body">
-                    <ul className="precautions-list">
-                      {analysis.analysis.precautions.map((prec, idx) => (
-                        <li key={idx
-      }>{prec
-      }</li>
-                      ))
-    }
-                    </ul>
-                  </div>
-                </div>
-
-                { /* AI Prescription */}
-                {analysis.prescription && analysis.prescription.medications.length > 0 && (
-                  <div className="card mt-2">
-                    <div className="card-header">
-                      <h3>💊 AI-Generated Prescription</h3>
                     </div>
-                    <div className="card-body">
-                      {analysis.prescription.medications.map((med, idx) => (
-                        <div key={idx} className="medication-item">
-                          <h4 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            {med.medicine}
-                            {med.requiresPrescription && (
-                              <span style={{ fontSize: '0.7rem', background: '#dc3545', color: '#fff', padding: '4px 8px', borderRadius: '12px' }}>
-                                Rx Required
-                              </span>
-                            )}
-                          </h4>
-                          <p><strong>Dosage:</strong> {med.dosage
-        }</p>
-                          <p><strong>Frequency:</strong> {med.frequency
-        }</p>
-                          <p><strong>Duration:</strong> {med.duration
-        }</p>
-                          <p><strong>Instructions:</strong> {med.instructions
-        }</p>
-                        </div>
-                      ))
-      }
-                      <div className="mt-2">
-                        <strong>Follow-up:</strong>
-                        <p>{analysis.prescription.followUp
-      }</p>
-                      </div>
-                    </div>
-                  </div>
-                )
-    }
+                  )}
 
-                <div className="alert alert-info mt-2">
-                  <strong>Note:</strong> This AI analysis is for informational purposes only. 
-                  Please consult a qualified healthcare professional for proper diagnosis and treatment.
+                  <div className="modern-alert alert-info">
+                    <span><strong>Note:</strong> This AI analysis is for informational purposes only. Please consult a qualified healthcare professional for proper diagnosis and treatment.</span>
+                  </div>
                 </div>
-              </>
-            ) : (
-              <div className="card">
-                <div className="card-body text-center">
-                  <FaBrain style={
-      { fontSize: '4rem', color: '#ddd', marginBottom: '20px'
-      }
-    } />
-                  <h3>Select symptoms and click Analyze</h3>
-                  <p>Our AI will provide intelligent health recommendations</p>
+              ) : (
+                <div className="modern-card animate-slide-up" style={{ animationDelay: '0.1s', height: '100%', position: 'relative', zIndex: 10 }}>
+                  <div className="empty-state">
+                    <img src="/assets/images/aicheck.png" alt="AI Analysis Ready" style={{ width: '220px', height: 'auto', marginBottom: '30px', filter: 'drop-shadow(0 20px 30px rgba(67, 24, 255, 0.15))' }} />
+                    <h3>Ready for Analysis</h3>
+                    <p>Select your symptoms on the left and click Analyze to receive intelligent, AI-powered health insights.</p>
+                  </div>
                 </div>
-              </div>
-            )
-  }
+              )}
+            </div>
           </div>
         </div>
       </div>

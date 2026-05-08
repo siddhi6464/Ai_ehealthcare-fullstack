@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import api from '../services/api';
+import { FaBell, FaHeartbeat, FaVenus, FaSync, FaTint, FaCheckCircle } from 'react-icons/fa';
 import './HealthReminders.css';
 
 const HealthReminders = () => {
@@ -140,7 +141,7 @@ const HealthReminders = () => {
 
   if (loading) {
     return (
-      <div className="page">
+      <div className="page modern-health-reminders">
         <div className="container">
           <div className="loading-spinner">Loading...</div>
         </div>
@@ -149,22 +150,27 @@ const HealthReminders = () => {
   }
 
   return (
-    <div className="page health-reminders-page">
+    <div className="page modern-health-reminders">
       <div className="container">
-        <div className="page-header">
-          <h1>🔔 Health Reminders</h1>
-          <p>Configure your wellness notifications and tracking</p>
+        <div className="hr-header animate-fade-in">
+          <div className="hr-header-icon">
+            <FaBell />
+          </div>
+          <div className="hr-header-text">
+            <h1>Health Reminders</h1>
+            <p>Configure your wellness notifications and personalized tracking</p>
+          </div>
         </div>
 
         {/* Reminder Settings */}
-        <div className="settings-grid">
+        <div className="settings-grid animate-slide-up">
           {/* Menstrual Cycle Tracking */}
-          <div className="reminder-card">
+          <div className="modern-card">
             <div className="card-header">
               <div className="header-left">
-                <div className="icon-circle menstrual">🩸</div>
+                <div className="icon-circle menstrual"><FaVenus /></div>
                 <div>
-                  <h3>Menstrual Cycle Tracking</h3>
+                  <h3>Menstrual Cycle</h3>
                   <p>Get reminders for your monthly cycle</p>
                 </div>
               </div>
@@ -179,7 +185,7 @@ const HealthReminders = () => {
             </div>
 
             {settings.menstrual.enabled && (
-              <div className="card-body">
+              <div className="card-body animate-fade-in">
                 <div className="form-group">
                   <label>Cycle Length (days)</label>
                   <input
@@ -188,7 +194,7 @@ const HealthReminders = () => {
                     max="35"
                     value={settings.menstrual.cycleLength}
                     onChange={(e) => handleChange('menstrual', 'cycleLength', e.target.value)}
-                    className="form-control"
+                    className="modern-input"
                   />
                 </div>
                 <div className="form-group">
@@ -197,7 +203,7 @@ const HealthReminders = () => {
                     type="date"
                     value={settings.menstrual.lastDate}
                     onChange={(e) => handleChange('menstrual', 'lastDate', e.target.value)}
-                    className="form-control"
+                    className="modern-input"
                   />
                 </div>
               </div>
@@ -205,12 +211,12 @@ const HealthReminders = () => {
           </div>
 
           {/* Blood Pressure Monitoring */}
-          <div className="reminder-card">
+          <div className="modern-card">
             <div className="card-header">
               <div className="header-left">
-                <div className="icon-circle bp">💓</div>
+                <div className="icon-circle bp"><FaHeartbeat /></div>
                 <div>
-                  <h3>Blood Pressure Monitoring</h3>
+                  <h3>Blood Pressure</h3>
                   <p>Regular BP check reminders</p>
                 </div>
               </div>
@@ -225,13 +231,13 @@ const HealthReminders = () => {
             </div>
 
             {settings.bloodPressure.enabled && (
-              <div className="card-body">
+              <div className="card-body animate-fade-in">
                 <div className="form-group">
                   <label>Check Frequency</label>
                   <select
                     value={settings.bloodPressure.frequency}
                     onChange={(e) => handleChange('bloodPressure', 'frequency', e.target.value)}
-                    className="form-control"
+                    className="modern-input"
                   >
                     <option value="3">Every 3 days</option>
                     <option value="7">Weekly</option>
@@ -245,7 +251,7 @@ const HealthReminders = () => {
                     type="date"
                     value={settings.bloodPressure.lastChecked}
                     onChange={(e) => handleChange('bloodPressure', 'lastChecked', e.target.value)}
-                    className="form-control"
+                    className="modern-input"
                   />
                 </div>
               </div>
@@ -253,12 +259,12 @@ const HealthReminders = () => {
           </div>
 
           {/* Blood Sugar Monitoring */}
-          <div className="reminder-card">
+          <div className="modern-card">
             <div className="card-header">
               <div className="header-left">
-                <div className="icon-circle sugar">🩸</div>
+                <div className="icon-circle sugar"><FaTint /></div>
                 <div>
-                  <h3>Blood Sugar Monitoring</h3>
+                  <h3>Blood Sugar</h3>
                   <p>Regular glucose check reminders</p>
                 </div>
               </div>
@@ -273,13 +279,13 @@ const HealthReminders = () => {
             </div>
 
             {settings.bloodSugar.enabled && (
-              <div className="card-body">
+              <div className="card-body animate-fade-in">
                 <div className="form-group">
                   <label>Check Frequency</label>
                   <select
                     value={settings.bloodSugar.frequency}
                     onChange={(e) => handleChange('bloodSugar', 'frequency', e.target.value)}
-                    className="form-control"
+                    className="modern-input"
                   >
                     <option value="1">Daily</option>
                     <option value="3">Every 3 days</option>
@@ -294,7 +300,7 @@ const HealthReminders = () => {
                     type="date"
                     value={settings.bloodSugar.lastChecked}
                     onChange={(e) => handleChange('bloodSugar', 'lastChecked', e.target.value)}
-                    className="form-control"
+                    className="modern-input"
                   />
                 </div>
               </div>
@@ -302,28 +308,28 @@ const HealthReminders = () => {
           </div>
         </div>
 
-        {/* Save Button */}
-        <div className="save-actions" style={{ display: 'flex', gap: '15px' }}>
+        {/* Save Actions */}
+        <div className="save-actions animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <button
-            className="btn btn-primary btn-save"
+            className="modern-btn-primary"
             onClick={handleSave}
             disabled={saving}
           >
-            {saving ? 'Saving...' : '✓ Save Settings'}
+            {saving ? 'Saving...' : <><FaCheckCircle /> Save Settings</>}
           </button>
           
           <button
-            className="btn btn-secondary btn-trigger"
+            className="modern-btn-secondary"
             onClick={handleTriggerReminders}
             title="Manual override to trigger background cron jobs that calculate daily alerts."
           >
-            🔄 Run System Checks Now
+            <FaSync /> Run System Checks Now
           </button>
         </div>
 
         {/* Recent Notifications */}
-        <div className="notifications-section">
-          <h2>📬 Recent Health Notifications</h2>
+        <div className="notifications-section animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <h2><FaBell style={{ color: '#4318ff', marginRight: '10px' }}/> Recent Notifications</h2>
           {notifications.length === 0 ? (
             <div className="empty-notifications">
               <p>No health notifications yet. Enable reminders above to start tracking!</p>
@@ -335,10 +341,11 @@ const HealthReminders = () => {
                   key={notification._id}
                   className={`notification-item ${notification.status === 'read' ? 'read' : 'unread'}`}
                 >
-                  <div className="notification-icon">
-                    {notification.subType === 'menstrual_cycle' && '🩸'}
-                    {notification.subType === 'blood_pressure' && '💓'}
-                    {notification.subType === 'blood_sugar' && '🩸'}
+                  <div className={`notification-icon ${notification.subType === 'menstrual_cycle' ? 'menstrual' : notification.subType === 'blood_pressure' ? 'bp' : notification.subType === 'blood_sugar' ? 'sugar' : ''}`}>
+                    {notification.subType === 'menstrual_cycle' && <FaVenus />}
+                    {notification.subType === 'blood_pressure' && <FaHeartbeat />}
+                    {notification.subType === 'blood_sugar' && <FaTint />}
+                    {notification.subType !== 'menstrual_cycle' && notification.subType !== 'blood_pressure' && notification.subType !== 'blood_sugar' && <FaBell />}
                   </div>
                   <div className="notification-content">
                     <h4>{notification.title}</h4>

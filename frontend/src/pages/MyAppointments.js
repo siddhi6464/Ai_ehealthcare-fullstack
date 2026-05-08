@@ -2,6 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../services/api';
+import { 
+  FaClipboardList, 
+  FaCalendarCheck, 
+  FaCheckCircle, 
+  FaTimesCircle, 
+  FaSyncAlt, 
+  FaFolderOpen, 
+  FaNotesMedical, 
+  FaRobot, 
+  FaUserMd, 
+  FaTimes, 
+  FaCalendarAlt, 
+  FaRegClock, 
+  FaInfoCircle, 
+  FaSearchPlus,
+  FaPlus
+} from 'react-icons/fa';
 import './MyAppointments.css';
 
 const MyAppointments = () => {
@@ -47,21 +64,21 @@ const MyAppointments = () => {
 
   const getStatusBadge = (status) => {
     const statusClasses = {
-      scheduled: 'status-scheduled',
-      completed: 'status-completed',
-      cancelled: 'status-cancelled',
-      rescheduled: 'status-rescheduled'
+      scheduled: 'ma-status-scheduled',
+      completed: 'ma-status-completed',
+      cancelled: 'ma-status-cancelled',
+      rescheduled: 'ma-status-rescheduled'
     };
 
     const statusIcons = {
-      scheduled: '📅',
-      completed: '✓',
-      cancelled: '✗',
-      rescheduled: '🔄'
+      scheduled: <FaCalendarCheck />,
+      completed: <FaCheckCircle />,
+      cancelled: <FaTimesCircle />,
+      rescheduled: <FaSyncAlt />
     };
 
     return (
-      <span className={`status-badge ${statusClasses[status]}`}>
+      <span className={`ma-status-badge ${statusClasses[status]}`}>
         {statusIcons[status]} {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
@@ -84,52 +101,60 @@ const MyAppointments = () => {
 
   if (loading) {
     return (
-      <div className="page">
+      <div className="page modern-appointments">
         <div className="container">
-          <div className="loading-spinner">Loading appointments...</div>
+          <div className="ma-loading-spinner">
+            <FaSyncAlt className="fa-spin" style={{ marginRight: '10px' }} />
+            Loading your appointments...
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="page my-appointments-page">
+    <div className="page modern-appointments">
       <div className="container">
-        <div className="page-header">
-          <div>
-            <h1>📋 My Appointments</h1>
-            <p>View and manage your appointments</p>
+        <div className="ma-header animate-fade-in">
+          <div className="ma-header-left">
+            <div className="ma-header-icon">
+              <FaClipboardList />
+            </div>
+            <div className="ma-header-text">
+              <h1>My Appointments</h1>
+              <p>View and manage your upcoming and past consultations</p>
+            </div>
           </div>
           <button 
-            className="btn btn-primary"
+            className="modern-btn-primary"
             onClick={() => navigate('/book-appointment')}
           >
-            + Book New Appointment
+            <FaPlus /> Book New Appointment
           </button>
         </div>
 
         {/* Filter Tabs */}
-        <div className="filter-tabs">
+        <div className="ma-filter-tabs animate-fade-in">
           <button 
-            className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
+            className={`ma-filter-tab ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
             All ({appointments.length})
           </button>
           <button 
-            className={`filter-tab ${filter === 'scheduled' ? 'active' : ''}`}
+            className={`ma-filter-tab ${filter === 'scheduled' ? 'active' : ''}`}
             onClick={() => setFilter('scheduled')}
           >
             Scheduled ({appointments.filter(a => a.status === 'scheduled').length})
           </button>
           <button 
-            className={`filter-tab ${filter === 'completed' ? 'active' : ''}`}
+            className={`ma-filter-tab ${filter === 'completed' ? 'active' : ''}`}
             onClick={() => setFilter('completed')}
           >
             Completed ({appointments.filter(a => a.status === 'completed').length})
           </button>
           <button 
-            className={`filter-tab ${filter === 'cancelled' ? 'active' : ''}`}
+            className={`ma-filter-tab ${filter === 'cancelled' ? 'active' : ''}`}
             onClick={() => setFilter('cancelled')}
           >
             Cancelled ({appointments.filter(a => a.status === 'cancelled').length})
@@ -138,54 +163,56 @@ const MyAppointments = () => {
 
         {/* Appointments List */}
         {filteredAppointments.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">📭</div>
+          <div className="ma-empty-state animate-slide-up">
+            <div className="ma-empty-icon"><FaFolderOpen /></div>
             <h3>No appointments found</h3>
             <p>
               {filter === 'all' 
-                ? "You haven't booked any appointments yet" 
-                : `No ${filter} appointments`}
+                ? "You haven't booked any appointments yet. Start your healthcare journey today." 
+                : `You don't have any ${filter} appointments at the moment.`}
             </p>
             <button 
-              className="btn btn-primary"
+              className="modern-btn-primary"
+              style={{ margin: '0 auto' }}
               onClick={() => navigate('/book-appointment')}
             >
-              Book Your First Appointment
+              <FaPlus /> Book Your First Appointment
             </button>
           </div>
         ) : (
-          <div className="appointments-grid">
+          <div className="ma-appointments-grid animate-slide-up">
             {filteredAppointments.map(appointment => (
-              <div key={appointment._id} className="appointment-card">
-                <div className="appointment-header">
+              <div key={appointment._id} className="ma-appointment-card">
+                <div className="ma-appointment-header">
                   <div>
                     <h3>Dr. {appointment.doctor?.name || 'Unknown Doctor'}</h3>
-                    <p className="specialization">
+                    <p className="ma-specialization">
+                      <FaUserMd style={{ marginRight: '5px' }} />
                       {appointment.doctor?.specialization || 'General Physician'}
                     </p>
                   </div>
                   {getStatusBadge(appointment.status)}
                 </div>
 
-                <div className="appointment-details">
-                  <div className="detail-row">
-                    <span className="detail-label">📅 Date:</span>
-                    <span className="detail-value">{formatDate(appointment.appointmentDate)}</span>
+                <div className="ma-appointment-details">
+                  <div className="ma-detail-row">
+                    <span className="ma-detail-label"><FaCalendarAlt /> Date:</span>
+                    <span className="ma-detail-value">{formatDate(appointment.appointmentDate)}</span>
                   </div>
-                  <div className="detail-row">
-                    <span className="detail-label">🕐 Time:</span>
-                    <span className="detail-value">{appointment.timeSlot?.startTime} - {appointment.timeSlot?.endTime}</span>
+                  <div className="ma-detail-row">
+                    <span className="ma-detail-label"><FaRegClock /> Time:</span>
+                    <span className="ma-detail-value">{appointment.timeSlot?.startTime} - {appointment.timeSlot?.endTime}</span>
                   </div>
-                  <div className="detail-row">
-                    <span className="detail-label">📝 Reason:</span>
-                    <span className="detail-value">{appointment.reason}</span>
+                  <div className="ma-detail-row">
+                    <span className="ma-detail-label"><FaInfoCircle /> Reason:</span>
+                    <span className="ma-detail-value">{appointment.reason}</span>
                   </div>
                   {appointment.symptoms && appointment.symptoms.length > 0 && (
-                    <div className="detail-row">
-                      <span className="detail-label">🩺 Symptoms:</span>
-                      <div className="symptoms-tags">
+                    <div className="ma-detail-row">
+                      <span className="ma-detail-label"><FaNotesMedical /> Symptoms:</span>
+                      <div className="ma-symptoms-tags">
                         {appointment.symptoms.map((symptom, idx) => (
-                          <span key={idx} className="symptom-tag">
+                          <span key={idx} className="ma-symptom-tag">
                             {symptom.replace('_', ' ')}
                           </span>
                         ))}
@@ -195,13 +222,13 @@ const MyAppointments = () => {
 
                   {/* AI Recommendations */}
                   {appointment.aiRecommendations && (
-                    <div className="ai-recommendations">
-                      <h4>🤖 AI Recommendations:</h4>
-                      <p className="severity">
+                    <div className="ma-ai-recommendations">
+                      <h4><FaRobot /> AI Preliminary Analysis</h4>
+                      <p className="ma-severity">
                         Severity: <strong>{appointment.aiRecommendations.severity}</strong>
                       </p>
                       {appointment.aiRecommendations.recommendations && (
-                        <ul className="recommendations-list">
+                        <ul className="ma-recommendations-list">
                           {appointment.aiRecommendations.recommendations.slice(0, 3).map((rec, idx) => (
                             <li key={idx}>{rec}</li>
                           ))}
@@ -212,26 +239,26 @@ const MyAppointments = () => {
 
                   {/* Consultation Notes (if completed) */}
                   {appointment.status === 'completed' && appointment.consultationNotes && (
-                    <div className="consultation-notes">
-                      <h4>👨‍⚕️ Doctor's Notes:</h4>
+                    <div className="ma-consultation-notes">
+                      <h4><FaUserMd /> Doctor's Notes</h4>
                       <p>{appointment.consultationNotes}</p>
                     </div>
                   )}
                 </div>
 
-                <div className="appointment-actions">
+                <div className="ma-appointment-actions">
                   <button
-                    className="btn-view"
+                    className="ma-btn-view"
                     onClick={() => setSelectedAppointment(appointment)}
                   >
-                    View Details
+                    <FaSearchPlus /> View Details
                   </button>
                   {appointment.status === 'scheduled' && (
                     <button
-                      className="btn-cancel"
+                      className="ma-btn-cancel"
                       onClick={() => handleCancelAppointment(appointment._id)}
                     >
-                      Cancel
+                      <FaTimesCircle /> Cancel
                     </button>
                   )}
                 </div>
@@ -242,27 +269,27 @@ const MyAppointments = () => {
 
         {/* Detail Modal */}
         {selectedAppointment && (
-          <div className="modal-overlay" onClick={() => setSelectedAppointment(null)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header">
+          <div className="ma-modal-overlay" onClick={() => setSelectedAppointment(null)}>
+            <div className="ma-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="ma-modal-header">
                 <h2>Appointment Details</h2>
                 <button 
-                  className="modal-close"
+                  className="ma-modal-close"
                   onClick={() => setSelectedAppointment(null)}
                 >
-                  ✕
+                  <FaTimes />
                 </button>
               </div>
-              <div className="modal-body">
-                <div className="detail-section">
-                  <h3>Doctor Information</h3>
+              <div className="ma-modal-body">
+                <div className="ma-detail-section">
+                  <h3><FaUserMd /> Doctor Information</h3>
                   <p><strong>Name:</strong> Dr. {selectedAppointment.doctor?.name}</p>
                   <p><strong>Specialization:</strong> {selectedAppointment.doctor?.specialization}</p>
                   <p><strong>Experience:</strong> {selectedAppointment.doctor?.experience} years</p>
                 </div>
 
-                <div className="detail-section">
-                  <h3>Appointment Details</h3>
+                <div className="ma-detail-section">
+                  <h3><FaClipboardList /> Booking Information</h3>
                   <p><strong>Date:</strong> {formatDate(selectedAppointment.appointmentDate)}</p>
                   <p><strong>Time:</strong> {selectedAppointment.timeSlot?.startTime} - {selectedAppointment.timeSlot?.endTime}</p>
                   <p><strong>Status:</strong> {selectedAppointment.status}</p>
@@ -270,8 +297,8 @@ const MyAppointments = () => {
                 </div>
 
                 {selectedAppointment.aiRecommendations && (
-                  <div className="detail-section">
-                    <h3>AI Analysis</h3>
+                  <div className="ma-detail-section">
+                    <h3><FaRobot /> AI Analysis</h3>
                     <p><strong>Severity:</strong> {selectedAppointment.aiRecommendations.severity}</p>
                     {selectedAppointment.aiRecommendations.possibleConditions && (
                       <>

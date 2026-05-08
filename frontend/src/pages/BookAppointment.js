@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../services/api';
+import { FaCalendarPlus, FaUserMd, FaRegClock, FaNotesMedical, FaCheckCircle, FaTimes } from 'react-icons/fa';
 import './BookAppointment.css';
 
 const BookAppointment = () => {
@@ -128,18 +129,23 @@ const BookAppointment = () => {
   };
 
   return (
-    <div className="page book-appointment-page">
+    <div className="page modern-book-appointment">
       <div className="container">
-        <div className="page-header">
-          <h1>📅 Book Appointment</h1>
-          <p>Schedule a consultation with our doctors</p>
+        <div className="ba-header animate-fade-in">
+          <div className="ba-header-icon">
+            <FaCalendarPlus />
+          </div>
+          <div className="ba-header-text">
+            <h1>Book Appointment</h1>
+            <p>Schedule a professional consultation with our medical experts</p>
+          </div>
         </div>
 
-        <div className="appointment-form-card">
+        <div className="appointment-form-card animate-slide-up">
           <form onSubmit={handleSubmit}>
             {/* Select Doctor */}
             <div className="form-section">
-              <h3>👨‍⚕️ Select Doctor</h3>
+              <h3 className="form-section-title"><FaUserMd /> Select Doctor</h3>
               <div className="doctors-grid">
                 {doctors.map(doctor => {
                   return (
@@ -168,7 +174,7 @@ const BookAppointment = () => {
 
             {/* Date and Time */}
             <div className="form-section">
-              <h3>📆 Select Date & Time</h3>
+              <h3 className="form-section-title"><FaRegClock /> Select Date & Time</h3>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="appointmentDate">Date *</label>
@@ -180,7 +186,7 @@ const BookAppointment = () => {
                     onChange={handleChange}
                     min={getMinDate()}
                     required
-                    className="form-control"
+                    className="modern-input"
                   />
                 </div>
                 <div className="form-group">
@@ -191,7 +197,7 @@ const BookAppointment = () => {
                     value={formData.timeSlot}
                     onChange={handleChange}
                     required
-                    className="form-control"
+                    className="modern-input"
                   >
                     <option value="">-- Select Time --</option>
                     {timeSlots.map(slot => (
@@ -204,7 +210,7 @@ const BookAppointment = () => {
 
             {/* Reason for Visit */}
             <div className="form-section">
-              <h3>📝 Reason for Visit</h3>
+              <h3 className="form-section-title"><FaNotesMedical /> Reason for Visit</h3>
               <div className="form-group">
                 <label htmlFor="reason">Describe your health concern *</label>
                 <textarea
@@ -212,17 +218,16 @@ const BookAppointment = () => {
                   name="reason"
                   value={formData.reason}
                   onChange={handleChange}
-                  rows="4"
-                  placeholder="Please describe your symptoms or reason for consultation..."
+                  placeholder="Please describe your symptoms or reason for consultation in detail..."
                   required
-                  className="form-control"
+                  className="modern-input"
                 ></textarea>
               </div>
             </div>
 
             {/* Symptoms Selection */}
             <div className="form-section">
-              <h3>🩺 Select Symptoms (Optional)</h3>
+              <h3 className="form-section-title"><FaNotesMedical /> Select Symptoms (Optional)</h3>
               <div className="symptoms-grid">
                 {availableSymptoms.map(symptom => (
                   <button
@@ -241,18 +246,18 @@ const BookAppointment = () => {
             <div className="form-actions">
               <button 
                 type="button" 
-                className="btn btn-secondary"
+                className="modern-btn-secondary"
                 onClick={() => navigate('/dashboard')}
                 disabled={loading}
               >
-                Cancel
+                <FaTimes /> Cancel
               </button>
               <button 
                 type="submit" 
-                className="btn btn-primary"
+                className="modern-btn-primary"
                 disabled={loading}
               >
-                {loading ? 'Booking...' : '✓ Confirm Appointment'}
+                {loading ? 'Booking...' : <><FaCheckCircle /> Confirm Appointment</>}
               </button>
             </div>
           </form>
